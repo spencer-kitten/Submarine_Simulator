@@ -87,6 +87,11 @@ class Submarine:
     def change_crs(self,new_crs, rudder = 10):
         '''Changes course at 1 degree per second at 10degree rudder.'''
         
+        try:
+            val = int(new_crs)
+        except ValueError:
+            return
+        
         current_crs = self.crs
         
         

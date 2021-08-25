@@ -35,14 +35,14 @@ def start_location():
         return Coord(C.lat + rand.random()/250,C.lon + rand.random()/250)
 
 # Time related functions for plotting. Variable b is max allowed time to pass for simulation
-b = 100
+b = 1000
 t = float(time.time())
 t_max = float(time.time()) + b
 t_plotting = {}
 
 #Create a list of ships for later class-object creation
 ships_list = []
-number_of_merchant_ships = 3
+number_of_merchant_ships = 5
 merchant_ship_generic_name = 'Merch_'
 i = 1
 while i <= number_of_merchant_ships:
@@ -67,7 +67,7 @@ for ships in ships_list:
     data[merch_key_building_string_brg] = []
         
 # Create submarine
-submarine = Submarine(Submarine_Start,crs = 95,spd = 1000)
+submarine = Submarine(Submarine_Start,crs = 90,spd = 100)
 
 #### Begin webpage
 
@@ -79,6 +79,7 @@ app.layout = html.Div(
         html.H4('Submarine Game'),
         html.Div(id='live-update-text'),
         dcc.Input(id='my-crs', value=90, type='text'),
+        dcc.Input(id='my-spd', value=12, type='text'),
         dcc.Input(id='my-depth', value=150, type='text'),
         dcc.Graph(id = 'live-update-graph'),
         dcc.Interval(
@@ -95,8 +96,9 @@ app.layout = html.Div(
 @app.callback(Output('live-update-text', 'children'),
               Input('interval-component', 'n_intervals'),
               Input(component_id='my-crs', component_property='value'),
+              Input(component_id='my-spd', component_property='value'),
               Input(component_id='my-depth', component_property='value'))
-def update_data(n,crs,depth):
+def update_data(n,crs,spd,depth):
     style = {'padding': '5px', 'fontSize': '16px'}
     
     for ships in ships_list:
@@ -106,16 +108,31 @@ def update_data(n,crs,depth):
     # Update position, course, and depth of submarine. 
     submarine.update_position(submarine.crs)
     sub_crs = int(crs)
+    sub_spd = int(spd)
     sub_depth = int(depth)
     submarine.change_crs(sub_crs)
     submarine.change_depth(sub_depth)
-    
-    return [
-        html.Span('lat: {}'.format(str(submarine.loc.lat)), style=style),
-        html.Span('lon: {}'.format(str(submarine.loc.lon)), style=style),
-        html.Span('crs: {}'.format(str(submarine.crs)), style=style),
-        html.Span('depth: {}'.format(str(submarine.depth)), style=style)
-    ]
+    submarine.change_speed(sub_spd)
+    range_to_tgt1 = submarine.loc.dist_to(ships_dict['Merch_1'].loc)
+    if range_to_tgt1 < 10:
+        return [
+            html.Span('lat: {}'.format(str(submarine.loc.lat)), style=style),
+            html.Span('lon: {}'.format(str(submarine.loc.lon)), style=style),
+            html.Span('crs: {}'.format(str(submarine.crs)), style=style),
+            html.Span('spd: {}'.format(str(submarine.spd)), style=style),
+            html.Span('depth: {}'.format(str(submarine.depth)), style=style),
+            html.Span('Range: {}'.format(range_to_tgt1), style=style)
+        ]
+
+    else:        
+        return [
+            html.Span('lat: {}'.format(str(submarine.loc.lat)), style=style),
+            html.Span('lon: {}'.format(str(submarine.loc.lon)), style=style),
+            html.Span('crs: {}'.format(str(submarine.crs)), style=style),
+            html.Span('spd: {}'.format(str(submarine.spd)), style=style),
+            html.Span('depth: {}'.format(str(submarine.depth)), style=style)
+            
+        ]
 
 
 
@@ -125,12 +142,13 @@ def update_data(n,crs,depth):
               Input(component_id='my-crs', component_property='value'))
 def update_graph_live(n,crs):
     # Create the graph with subplots
+
     fig = plotly.tools.make_subplots(rows=1, cols=1, vertical_spacing=0.2)
     fig['layout']['margin'] = {
         'l': 30, 'r': 10, 'b': 30, 't': 10
     }
     fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor': 'left'}
-    
+    fig.update_layout(xaxis_range=[-180,180])
     for ship in ships_list:
         #populate figure with each ship's new information
         merch_key_building_string_brg = merchant_plot_key_brg + '_' + str(ship)
@@ -141,17 +159,20 @@ def update_graph_live(n,crs):
         t_plotting[ship].append(t)
         
         # Merchant relative bearing plotting
-        data[merch_key_building_string_brg].append(submarine.loc.bearing(ships_dict[ship].loc))
+        true_bearing = submarine.loc.bearing(ships_dict[ship].loc)
+        data[merch_key_building_string_brg].append(submarine.loc.rel_bearing_to(submarine.crs,true_bearing))
         
         
         fig.append_trace({
             
             'x': data[merch_key_building_string_brg],
             'y': t_plotting[ship],
-            'name': 'sub',
+            'name': true_bearing,
             'mode': 'lines+markers',
             'type': 'scatter'
         }, 1, 1)
+        if len(t_plotting[ship]) > 61:
+            fig.update_layout(yaxis_range=[t_plotting[ship][-60],t])
 
 
     return fig

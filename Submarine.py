@@ -45,7 +45,7 @@ class Submarine:
         self.loc = Coord(lat2,lon2)
         
     def change_depth(self,new_depth = 150):
-        '''changes depth at 1ft per second'''
+        '''changes depth at 5ft per second'''
         
         current_depth = self.depth
         
@@ -55,12 +55,12 @@ class Submarine:
             return
         elif current_depth < new_depth:
             # Going deep 
-            current_depth += 1
+            current_depth += 5
             self.depth = current_depth
             return
         else:
             # Going Shallow
-            current_depth -= 1
+            current_depth -= 5
             self.depth = current_depth
             
     def change_speed(self,new_speed = 3, cavitate = False):

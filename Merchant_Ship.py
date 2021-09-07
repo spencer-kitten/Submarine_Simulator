@@ -16,7 +16,9 @@ import matplotlib.pyplot as plt
 
 from Coord import Coord
 
-from Location_Getter import A, B, C
+from Location_Getter import Location_Dictionary
+
+
 
 class Merchant_Ship:
     '''Improved class to store Merchant Ship data'''
@@ -32,14 +34,14 @@ class Merchant_Ship:
         else:
             self.spd = 16
         
-        if self.loc.dist_to(A) < 1:
-            self.crs = self.loc.bearing(B)
+        if self.loc.dist_to(Location_Dictionary['A']) < 1:
+            self.crs = self.loc.bearing(Location_Dictionary['B'])
             self.initial = 'A'
-        elif self.loc.dist_to(B) < 1:
-            self.crs = self.loc.bearing(C)
+        elif self.loc.dist_to(Location_Dictionary['B']) < 1:
+            self.crs = self.loc.bearing(Location_Dictionary['C'])
             self.initial = 'B'
-        elif self.loc.dist_to(C) < 1:
-            self.crs = self.loc.bearing(B)
+        elif self.loc.dist_to(Location_Dictionary['C']) < 1:
+            self.crs = self.loc.bearing(Location_Dictionary['B'])
             self.initial = 'C'
             
 
@@ -71,16 +73,16 @@ class Merchant_Ship:
         
         self.loc = Coord(lat2,lon2)
         
-        if self.loc.dist_to(B) < .5:
+        if self.loc.dist_to(Location_Dictionary['B']) < .5:
             self.track = True
         
         if self.track == False:
-            self.crs = self.loc.bearing(B)
+            self.crs = self.loc.bearing(Location_Dictionary['B'])
             return   
         elif self.track == True and self.initial == 'A':
-            self.crs = self.loc.bearing(C)
+            self.crs = self.loc.bearing(Location_Dictionary['C'])
         elif self.track == True and self.initial == 'C':
-            self.crs = self.loc.bearing(A)
+            self.crs = self.loc.bearing(Location_Dictionary['A'])
 
 
         

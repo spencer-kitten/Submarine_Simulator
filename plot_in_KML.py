@@ -7,7 +7,7 @@ Created on Tue Aug 10 13:25:25 2021
 
 from fastkml import kml
 from shapely.geometry import Point, LineString, Polygon
-from Location_Getter import A, B, C, Fishing, Submarine_Start
+from Location_Getter import *
 
 def plot_in_KML(ships_list,plotting_merchants,fishing_list,plotting_fishing,plotting_submarine):
     kml2 = kml.KML()  # create the kml object

@@ -98,3 +98,36 @@ class Coord:
             crs = (math.pi/180)*90
     
         return crs
+    
+    def rel_bearing_to(self,crs,brg):
+        '''Calculates relative bearing to tgt with ownship head at 0'''
+        
+        true_bearing = float(brg)
+        
+        relative_bearing = true_bearing - float(crs) 
+        
+        if relative_bearing > 180:
+            return relative_bearing - 360
+        elif relative_bearing <= 180 and relative_bearing > -180:
+            return relative_bearing
+        else:
+            return relative_bearing + 360
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
